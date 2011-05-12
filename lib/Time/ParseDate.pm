@@ -17,7 +17,7 @@ use strict;
 # constants
 use vars qw(%mtable %umult %wdays $VERSION);
 
-$VERSION = 2006.0814;
+$VERSION = 2011.0505;
 
 # globals
 use vars qw($debug); 
@@ -255,7 +255,9 @@ sub parsedate
 		}
 
 		print "relative date\n" if $debug;
-		$jd = local_julian_day($now);
+		$jd = $options{GMT}
+			? gm_julian_day($now)
+			: local_julian_day($now);
 		print "jd($now) = $jd\n" if $debug;
 		$jd += $rd;
 	} else {
@@ -368,8 +370,13 @@ sub parsedate
 	} else {
 		unless ($options{GMT}) {
 			if ($options{ZONE}) {
-				$tzadj = tz_offset($options{ZONE}, $secs);
+				$tzadj = tz_offset($options{ZONE}, $secs) || 0;
 				$tzadj = tz_offset($options{ZONE}, $secs-$tzadj);
+				unless (defined($tzadj)) {
+					return (undef, "could not convert '$options{ZONE}' to time offset")
+						if wantarray();
+					return undef;
+				}
 				print "adjusting secs for $options{ZONE}: $tzadj\n" if $debug;
 				$secs -= $tzadj;
 			} else {
@@ -727,18 +734,18 @@ sub parse_time_only
 			$$sr += $frac;
 		}
 		print "S = $$sr\n" if $debug;
-		$ampm = $4 || $9 || $11;
+		$ampm = $4 || $9 || $11 || '';
 		$$tzr = $12;
 		$$hr += 12 if $ampm and "\U$ampm" eq "PM" && $$hr != 12;
 		$$hr = 0 if $$hr == 12 && "\U$ampm" eq "AM";
 		printf "matched at %d, rem = %s.\n", __LINE__, $$tr if $debug;
 		return 1;
-	} elsif ($$tr =~ s#noon(?:\s+|$ )##ix) {
+	} elsif ($$tr =~ s#^noon(?:\s+|$ )##ix) {
 		# noon
 		($$hr, $$mr, $$sr) = (12, 0, 0);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#midnight(?:\s+|$ )##ix) {
+	} elsif ($$tr =~ s#^midnight(?:\s+|$ )##ix) {
 		# midnight
 		($$hr, $$mr, $$sr) = (0, 0, 0);
 		printf "matched at %d.\n", __LINE__ if $debug;
@@ -1275,13 +1282,11 @@ C<undef> and an error string.
 	($seconds, $remaining) = parsedate("today is the day");
 	($seconds, $error) = parsedate("today is", WHOLE=>1);
 
-=head1 AUTHOR
-
-David Muir Sharnoff <muir@idiom.org>.  
-
 =head1 LICENSE
 
-Copyright (C) 1996-2006 David Muir Sharnoff.  License hereby
+Copyright (C) 1996-2010 David Muir Sharnoff.  
+Copyright (C) 2011 Google, Inc.  
+License hereby
 granted for anyone to use, modify or redistribute this module at
-their own risk.  Please feed useful changes back to muir@idiom.org.
+their own risk.  Please feed useful changes back to cpan@dave.sharnoff.org.
 

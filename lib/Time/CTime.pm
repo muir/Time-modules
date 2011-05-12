@@ -16,7 +16,7 @@ use strict;
 use vars qw(@DoW @DayOfWeek @MoY @MonthOfYear %strftime_conversion $VERSION);
 use vars qw($template $sec $min $hour $mday $mon $year $wday $yday $isdst);
 
-$VERSION = 99.06_22_01;
+$VERSION = 2011.0505;
 
 CONFIG: {
     @DoW = 	   qw(Sun Mon Tue Wed Thu Fri Sat);
@@ -54,6 +54,7 @@ CONFIG: {
 	't',	sub { "\t" },
 	'T',	sub { sprintf("%02d:%02d:%02d", $hour, $min, $sec) },
 	'U',	sub { wkyr(0, $wday, $yday) },
+	'v',	sub { sprintf("%2d-%s-%4d", $mday, $MoY[$mon], $year+1900) },
 	'w',	sub { $wday },
 	'W',	sub { wkyr(1, $wday, $yday) },
 	'y',	sub { sprintf("%02d",$year%100) },
@@ -116,7 +117,7 @@ sub strftime {
     local ($template, $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = @_;
 
     undef $@;
-    $template =~ s/%([%aAbBcdDefFhHIjklmMnopQrRStTUwWxXyYZ])/&{$Time::CTime::strftime_conversion{$1}}()/egs;
+    $template =~ s/%([%aAbBcdDefFhHIjklmMnopQrRStTUvwWxXyYZ])/&{$Time::CTime::strftime_conversion{$1}}()/egs;
     die $@ if $@;
     return $template;
 }
@@ -166,6 +167,7 @@ Time::CTime -- format times ala POSIX asctime
 	%t 	TAB
 	%T 	time format: 21:05:57
 	%U 	week number, Sunday as first day of week
+	%v	DD-Mon-Year
 	%w 	day of the week, numerically, Sunday == 0
 	%W 	week number, Monday as first day of week
 	%x 	date format: 11/19/94
@@ -195,7 +197,9 @@ Paul Foley <paul@ascent.com>
 
 =head1 LICENSE
 
-Copyright (C) 1996-1999 David Muir Sharnoff.  License hereby
+Copyright (C) 1996-2010 David Muir Sharnoff.  
+Copyright (C) 2011 Google, Inc.  
+License hereby
 granted for anyone to use, modify or redistribute this module at
-their own risk.  Please feed useful changes back to muir@idiom.org.
+their own risk.  Please feed useful changes back to cpan@dave.sharnoff.org.
 

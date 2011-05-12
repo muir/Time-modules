@@ -1,6 +1,4 @@
-#!/usr/bin/perl5.00502 -I. -w
-
-# David Muir Sharnoff <muir@idiom.org>
+#!/usr/bin/perl -I. -w
 
 # find out why it died if not running under make
 
@@ -42,6 +40,7 @@ BEGIN {
 		't' =>	"\t",
 		'T' =>	"21:05:57",
 		'U' =>	"46",
+		'v' =>	"19-Nov-1994",
 		'w' =>	"6",
 		'W' =>	"46",
 		'x' =>	"11/19/94",
@@ -289,7 +288,28 @@ BEGIN {
 		1078876800, ['2004-03-10 00:00:00 GMT'],
 		1081551599, ['-1 second +1 month', NOW => 1078876800, ZONE => 'PDT'],
 		1081526399, ['-1 second +1 month', NOW => 1078876800, ZONE => 'GMT'],
-
+		1304661600, ['11pm', NOW => 1304611460],
+		1304636400, ['11pm', NOW => 1304611460, GMT => 1],
+		1304557200, ['1am', NOW => 1304611460, GMT => 1],
+		1246950000, ['2009/7/7'],
+		-1636819200, ['1918/2/18'],
+		1246950000, ['2009/7/7'],
+		1256435700, ['2009-10-25 02:55:00', ZONE => 'MET'],
+		1256439300, ['+ 1 hour', NOW => 1256435700, ZONE => 'MET'],
+		1256464500, ['2009-10-25 02:55:00', ZONE => 'PDT'],
+		1256468100, ['+ 1 hour', NOW => 1256464500, ZONE => 'PDT'],
+		1256468100, ['2009-10-25 02:55:00', ZONE => 'PST'],
+		1256471700, ['+ 1 hour', NOW => 1256468100, ZONE => 'PST'],
+		[1304622000, 'Foo'], ['12pm Foo', NOW => 1304611460, WHOLE => 0],
+		undef, ['Foo 12pm', NOW => 1304611460, WHOLE => 0],
+		undef, ['Foo noon', NOW => 1304611460, WHOLE => 0],
+		undef, ['Foo midnight', NOW => 1304611460, WHOLE => 0],
+		1011252345, ['Wed Jan 16 23:25:45 2002'],
+		1012550400, ['Feb 1', NOW => 1011252345],
+		1012550400, ['Feb 1', NOW => 1011252345, FUZZY => 1, PREFER_FUTURE => 1],
+		1012550400, ['2/1/02', NOW => 1011252345, FUZZY => 1, PREFER_FUTURE => 1],
+		1011247200, ['6am', GMT => 1, NOW => 1011252345],
+		1256435700, ['2009-10-25 02:55:00', ZONE => 'MEZ'],
 		);
 
 	%tztests = (
@@ -307,9 +327,22 @@ use Time::ParseDate;
 use Time::Local;
 use Time::Timezone;
 
+my @x = localtime(785307957);
+my @y = gmtime(785307957);
+my $hd = $y[2] - $x[2];
+$hd += 24 if $hd < 0;
+$hd %= 24;
+if ($hd != 8) {
+	print "1..0 # Skipped: It seems localtime() does not honor \$ENV{TZ} when set in the test script.  Please set the TZ environment variable to PST8PDT and rerun.";
+	print "hd = $hd, x = @x, y = @y\n" if $debug || -t STDOUT;
+	exit 0;
+}
+
 my $before_big = $okat-1+scalar(keys %k)+scalar(keys %tztests);
 
-printf "1..%d\n", $before_big + @sdt/2;
+printf "1..%d\n", $before_big + scalar(grep(ref($_), @sdt));
+
+print "ok 1\n";
 
 $epoch = ($Time::JulianDay::jd_epoch - 2440588) * 86400
 	+ $Time::JulianDay::jd_epoch_remainder;
@@ -317,18 +350,6 @@ print STDERR "\nEpoch = $epoch\n" if $epoch;
 
 $etime = 785307957.5 - $epoch;
 
-@x = localtime(785307957);
-@y = gmtime(785307957);
-my $hd = $y[2] - $x[2];
-$hd += 24 if $hd < 0;
-$hd %= 24;
-if ($hd != 8) {
-	print STDERR "\nIt seems localtime() does not honor \$ENV{TZ} when set in the test script.\nPlease set the TZ environment variable to PST8PDT and rerun.\n";
-	print "hd = $hd, x = @x, y = @y\n" if $debug || -t STDOUT;
-	print "not ok 1\n";
-} else {
-	print "ok 1\n";
-}
 
 eval " 1/0; ";  # tests a bug in ctime!
 $x = ctime($etime);
@@ -383,7 +404,7 @@ $c = $okat;
 $lt[0] += ($etime - int($etime));
 foreach $i (sort keys %k) {
 	$x = strftime("-%$i-", @lt);
-	print $x eq "-$k{$i}-" ? "ok $c\n" : "not ok $c\n";
+	print $x eq "-$k{$i}-" ? "ok $c # $i - $k{$i}\n" : "not ok $c # $i - $k{$i}: $x\n";
 	if ($debug && $x ne "-$k{$i}-") {
 		print "strftime(\"-%$i-\") = $x.\n\tshould be: $k{$i}.\n";
 		exit(0);
@@ -401,8 +422,14 @@ foreach $i (keys %tztests) {
 	$c++;
 }
 
+
 while (@sdt) {
 	$es = shift(@sdt);
+	my $eremaining;
+	if (ref($es)) {
+		$eremaining = $es->[1];
+		$es = $es->[0];
+	}
 	$es -= $epoch if defined($es);
 	$ar = shift(@sdt);
 	$toparse = shift(@$ar);
@@ -411,13 +438,18 @@ while (@sdt) {
 		$opts{NOW} -= $epoch;
 	}
 	$opts{WHOLE} = 1 unless defined $opts{WHOLE};
-	$s = parsedate($toparse, %opts);
-	if (! defined($es) && ! defined($s)) {
-		print "ok $c\n";
-	} elsif ($es == $s) {
-		print "ok $c\n";
+	my $remaining;
+	if (defined $eremaining) {
+		($s, $remaining) = parsedate($toparse, %opts);
 	} else {
-		print "not ok $c\n";
+		$s = parsedate($toparse, %opts);
+	}
+	if (! defined($es) && ! defined($s)) {
+		print "ok $c # $toparse\n";
+	} elsif (defined($es) && defined($s) && $es == $s) {
+		print "ok $c # $toparse\n";
+	} else {
+		print "not ok $c # $toparse\n";
 		if (-t STDOUT || $debug) {
 			if (defined($es)) {
 				print strftime("Expected($es):    %c %Z\n", localtime($es));
@@ -443,6 +475,17 @@ while (@sdt) {
 				printf "Test that failed was on line %d\n",	
 					$c-$before_big+$sdt_start_line-1;
 				exit(0);
+			}
+		}
+	}
+	if (defined($eremaining)) {
+		$c++;
+		if ($remaining eq $eremaining) {
+			print "ok $c # remaining = '$eremaining'\n";
+		} else {
+			print "not ok $c # remaining = '$eremaining'\n";
+			if (-t STDOUT || $debug) {
+				print "# got '$remaining' instead\n";
 			}
 		}
 	}

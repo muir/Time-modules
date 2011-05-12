@@ -19,7 +19,7 @@ use integer;
 # constants
 use vars qw($brit_jd $jd_epoch $jd_epoch_remainder $VERSION);
 
-$VERSION = 2003.1125;
+$VERSION = 2011.0505;
 
 # calculate the julian day, given $year, $month and $day
 sub julian_day
@@ -208,7 +208,7 @@ There is another implementation in Astro::Time that may be more accurate.
 
 =head1 GENESIS
 
-Written by David Muir Sharnoff <muir@idiom.org> with help from
+Written by David Muir Sharnoff <cpan@dave.sharnoff.org> with help from
 previous work by 
 Kurt Jaeger aka PI <zrzr0111@helpdesk.rus.uni-stuttgart.de>
  	based on postings from: Ian Miller <ian_m@cix.compulink.co.uk>;
@@ -220,5 +220,5 @@ and the unknown-to-me author of Time::Local.
 
 Copyright (C) 1996-1999 David Muir Sharnoff.  License hereby
 granted for anyone to use, modify or redistribute this module at
-their own risk.  Please feed useful changes back to muir@idiom.org.
+their own risk.  Please feed useful changes back to cpan@dave.sharnoff.org.
 

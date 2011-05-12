@@ -1,3 +1,15 @@
+2011.0505:
+	Bugfix: make sure $ampm is defined so no undefined string warnings
+	are issued.
+
+	Honor the GMT flag when parsing time specs.  Patch from
+	kris at shannon.id.au.
+
+	Bugfix: RT#31477 noon & midnight would match in the middle of strings.
+
+	Added %v conversion for Time::CTime
+
+	Added tests to disprove invalid bug reports.
 2006.0814:
 	A bugfix for negative offsets that overflowed (from Vernon Lyon 
 	<vlyon at uk.yahoo-inc.com>)
