@@ -2,14 +2,16 @@
 
 use strict;
 use warnings;
-use Test::More qw(no_plan);
+use Test::More;
 use Time::ParseDate;
+use POSIX qw(tzset);
 
 my $finished;
 END { ok($finished, 'finished') if defined $finished }
 
 $ENV{'LANG'} = 'C';
 $ENV{'TZ'} = 'PST8PDT'; 
+tzset;
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
@@ -17,9 +19,10 @@ my $hd = $y[2] - $x[2];
 $hd += 24 if $hd < 0;
 $hd %= 24;
 if ($hd != 8) {
-	print "1..0 # Skipped: It seems localtime() does not honor \$ENV{TZ} when set in the test script.  Please set the TZ environment variable to PST8PDT and rerun.";
+	import Test::More skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.  Please set the TZ environment variable to PST8PDT and rerun.";
 	exit 0;
 }
+import Test::More qw(no_plan);
 
 $finished = 0;
 

@@ -1,3 +1,7 @@
+2011.0517:
+	Bugfix from Sophie Hamilton: call tzset() when changing timezones.
+
+	Bugfix: bail out of tests cleanly when tzset doesn't work.
 2011.0505:
 	Bugfix: make sure $ampm is defined so no undefined string warnings
 	are issued.

@@ -6,7 +6,7 @@ $debug = 0;
 
 $Time::ParseDate::debug = $debug;
 
-BEGIN { 
+BEGIN {
 	$okat = 12;
 	$ENV{'LANG'} = 'C';
 	$ENV{'TZ'} = 'PST8PDT'; 
@@ -326,6 +326,9 @@ use Time::JulianDay;
 use Time::ParseDate;
 use Time::Local;
 use Time::Timezone;
+use POSIX qw(tzset);
+
+tzset;
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
