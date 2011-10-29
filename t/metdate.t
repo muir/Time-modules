@@ -12,7 +12,8 @@ END { ok($finished, 'finished') if defined $finished }
 
 $ENV{'LANG'} = 'C';
 $ENV{'TZ'} = 'PST8PDT'; 
-tzset;
+eval { tzset; 1 }
+    or plan skip_all => "It seems POSIX::tzset is not available.";
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);

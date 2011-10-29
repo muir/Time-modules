@@ -328,7 +328,7 @@ use Time::Local;
 use Time::Timezone;
 use POSIX qw(tzset);
 
-tzset;
+eval { tzset };                 # Might not be implemented everywhere
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
