@@ -29,5 +29,10 @@ $finished = 0;
 is(parsedate('1918/2/18'), -1636819200, "year 1918");
 is(parsedate('2009/7/7'), 1246950000, "year 2009");
 
+$ENV{'TZ'} = 'Europe/Moscow';
+tzset;
+is(parsedate('2009-11-01'), 1257022800, 'Europe/Moscow, DST permanent 2009');
+is(parsedate('2013-05-30'), 1369857600, 'Europe/Moscow, DST permanent 2013');
+
 $finished = 1;
 
