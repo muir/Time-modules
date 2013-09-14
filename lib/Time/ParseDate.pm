@@ -17,7 +17,7 @@ use strict;
 # constants
 use vars qw(%mtable %umult %wdays $VERSION);
 
-$VERSION = 2013.0912;
+$VERSION = 2013.0913;
 
 # globals
 use vars qw($debug); 
@@ -41,7 +41,7 @@ CONFIG:	{
 		Jun 6	Jun. 6	June 6 
 		Jul 7	Jul. 7	July 7 
 		Aug 8	Aug. 8	August 8 
-		Sep 9	Sep. 9	September 9 
+		Sep 9	Sep. 9	September 9 Sept 9
 		Oct 10	Oct. 10	October 10 
 		Nov 11	Nov. 11	November 11 
 		Dec 12	Dec. 12	December 12 );

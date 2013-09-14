@@ -1,5 +1,8 @@
 	Changed date terminator to accept many more characters (not just
-	whitespace.
+	whitespace.  Fixing: https://rt.cpan.org/Ticket/Display.html?id=87828
+
+	Added "Sept" as an abbr for September.
+	Fixing: https://rt.cpan.org/Ticket/Display.html?id=87451
 2013.0912:
         Pulled fix from Adam Schobelock that removes timezone offset
 	caching because it was creating incorrect behavor or Moscow.
