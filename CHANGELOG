@@ -1,3 +1,4 @@
+2013.0913
 	Changed date terminator to accept many more characters (not just
 	whitespace.  Fixing: https://rt.cpan.org/Ticket/Display.html?id=87828
 
