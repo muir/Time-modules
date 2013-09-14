@@ -65,6 +65,8 @@ CONFIG:	{
 	$y2k = 946684800; # turn of the century
 }
 
+my $break = qr{(?:\s+|\Z|\b(?![-:.,/]\d))};
+
 sub parsedate
 {
 	my ($t, %options) = @_;
@@ -95,13 +97,14 @@ sub parsedate
 			 ([-+] \d\d\d\d)
 			  (?: \("?(?:(?:[A-Z]{1,4}[TCW56])|IDLE)\))?
 			 )?
+			 $break
 			##xi) { #"emacs
 		# [ \d]/Mon/yyyy:hh:mm:ss [-+]\d\d\d\d
 		# This is the format for www server logging.
 
 		($d, $m, $y, $H, $M, $S, $tzo) = ($1, $mtable{"\u\L$2"}, $3, $4, $5, $6, $7 ? &mkoff($7) : ($tzo || undef));
 		$parse .= " ".__LINE__ if $debug;
-	} elsif ($t =~ s#^(\d\d)/(\d\d)/(\d\d)\.(\d\d)\:(\d\d)(\s+|$)##) {
+	} elsif ($t =~ s#^(\d\d)/(\d\d)/(\d\d)\.(\d\d)\:(\d\d)($break)##) {
 		# yy/mm/dd.hh:mm
 		# I support this format because it's used by wbak/rbak
 		# on Apollo Domain OS.  Silly, but historical.
@@ -159,7 +162,7 @@ sub parsedate
 				}
 			}
 			if (defined $M or defined $rd) {
-				if ($t =~ s/^\s*(?:at|\@|\+)\s*(\s+|$)//x) {
+				if ($t =~ s/^\s*(?:at|\@|\+)($break)//x) {
 					$rel = 1;
 					$parse .= " ".__LINE__ if $debug;
 					next;
@@ -431,16 +434,12 @@ sub parse_tz_only
 					IDLE
 				)
 			\)
-			(?:
-				\s+
-				|
-				$ 
-			)
+			$break
 			##x) { #"emacs
 		$$tzo = &mkoff($1);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^GMT\s*([-+]\d{1,2})(\s+|$)##x) {
+	} elsif ($$tr =~ s#^GMT\s*([-+]\d{1,2})($break)##x) {
 		$o = $1;
 		if ($o < 24 and $o !~ /^0/) {
 			# probably hours.
@@ -451,15 +450,15 @@ sub parse_tz_only
 		$$tzo = &mkoff($o);
 		printf "matched at %d. ($$tzo, $o)\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(?:GMT\s*)?([-+]\d\d:?\d\d)(\s+|$)##x) {
+	} elsif ($$tr =~ s#^(?:GMT\s*)?([-+]\d\d:?\d\d)($break)##x) {
 		$o = $1;
 		$$tzo = &mkoff($o);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^"?((?:[A-Z]{1,4}[TCW56])|IDLE)(?:\s+|$ )##x) { #"
+	} elsif ($$tr =~ s#^"?((?:[A-Z]{1,4}[TCW56])|IDLE)$break##x) { #"
 		$$tz = $1;
 		$$tz .= " DST" 
-			if $$tz eq 'MET' && $$tr =~ s#^DST(?:\s+|$ )##x;
+			if $$tz eq 'MET' && $$tr =~ s#^DST$break##x;
 		printf "matched at %d: '$$tz'.\n", __LINE__ if $debug;
 		return 1;
 	}
@@ -472,13 +471,13 @@ sub parse_date_only
 
 	$$tr =~ s#^\s+##;
 
-	if ($$tr =~ s#^(\d\d\d\d)([-./])(\d\d?)\2(\d\d?)(\s+|T|$)##) {
+	if ($$tr =~ s#^(\d\d\d\d)([-./])(\d\d?)\2(\d\d?)(T|$break)##) {
 		# yyyy/mm/dd
 
 		($$yr, $$mr, $$dr) = ($1, $3, $4);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(\d\d?)([-./])(\d\d?)\2(\d\d\d\d?)(\s+|$)##) {
+	} elsif ($$tr =~ s#^(\d\d?)([-./])(\d\d?)\2(\d\d\d\d?)($break)##) {
 		# mm/dd/yyyy - is this safe?  No.
 		# -- or dd/mm/yyyy! If $1>12, then it's umabiguous.
 		# Otherwise check option UK for UK style date.
@@ -489,7 +488,7 @@ sub parse_date_only
 		}
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(\d\d\d\d)/(\d\d?)(?:\s|$ )##x) {
+	} elsif ($$tr =~ s#^(\d\d\d\d)/(\d\d?)$break##x) {
 		# yyyy/mm
 
 		($$yr, $$mr, $$dr) = ($1, $2, 1);
@@ -509,11 +508,7 @@ sub parse_date_only
 				\2
 				(\d\d (?:\d\d)? )
 			)?
-			(?:
-				\s+
-			|
-				$
-			)
+			$break
 			##) {
 		# [Dow,] dd Mon [yy[yy]]
 		($$yr, $$mr, $$dr) = ($4, $mtable{"\u\L$3"}, $1);
@@ -536,11 +531,7 @@ sub parse_date_only
 				(?: \2|\3+)
 				(\d\d (?: \d\d)?)
 			)?
-			(?:
-				\s+
-			|
-				$
-			)
+			$break
 			##) {
 		# [Dow,] Mon dd [yyyy]
 		($$yr, $$mr, $$dr) = ($5, $mtable{"\u\L$1"}, $4);
@@ -562,11 +553,7 @@ sub parse_date_only
 					|(?:\' (\d\d))
 				)
 			)?
-			(?:
-				\s+
-			|
-				$
-			)
+			$break
 			##) {
 		# Month day{st,nd,rd,th}, 'yy
 		# Month day{st,nd,rd,th}, year
@@ -575,7 +562,7 @@ sub parse_date_only
 		print "y undef\n" if ($debug && ! defined($$yr));
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(\d\d?)([-/.])(\d\d?)\2(\d\d?)(\s+|$)##x) {
+	} elsif ($$tr =~ s#^(\d\d?)([-/.])(\d\d?)\2(\d\d?)($break)##x) {
 		if ($1 > 31 || (!$uk && $1 > 12 && $4 < 32)) {
 			# yy/mm/dd
 			($$yr, $$mr, $$dr) = ($1, $3, $4);
@@ -588,7 +575,7 @@ sub parse_date_only
 		}
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(\d\d?)/(\d\d?)(\s+|$)##x) {
+	} elsif ($$tr =~ s#^(\d\d?)/(\d\d?)($break)##x) {
 		if ($1 > 31 || (!$uk && $1 > 12)) {
 			# yy/mm
 			($$yr, $$mr, $$dr) = ($1, $2, 1);
@@ -604,7 +591,7 @@ sub parse_date_only
 		}
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^(\d\d)(\d\d)(\d\d)(\s+|$)##x) {
+	} elsif ($$tr =~ s#^(\d\d)(\d\d)(\d\d)($break)##x) {
 		if ($1 > 31 || (!$uk && $1 > 12)) {
 			# YYMMDD
 			($$yr, $$mr, $$dr) = ($1, $2, $3);
@@ -630,11 +617,7 @@ sub parse_date_only
 					(?:\d\d)?
 				)
 			)
-			(:?
-				\s+
-			|
-				$
-			)
+			$break
 			##) {
 		# dd Month [yr]
 		($$yr, $$mr, $$dr) = ($4, $mtable{"\u\L$3"}, $1);
@@ -652,11 +635,7 @@ sub parse_date_only
 				\s+
 				(\d\d\d\d)
 			)?
-			(:?
-				\s+
-			|
-				$
-			)
+			$break
 			##) {
 		# day{st,nd,rd,th}, Month year
 		($$yr, $$mr, $$dr) = ($3, $mtable{"\u\L$2"}, $1);
@@ -717,11 +696,7 @@ sub parse_time_only
 					IDLE
 				)	
 			)?
-			(?:
-				\s*
-			|
-				$
-			)
+			$break
 			!!) { #"emacs
 		# HH[[:]MM[:SS]]meridan [zone] 
 		my $ampm;
@@ -740,12 +715,12 @@ sub parse_time_only
 		$$hr = 0 if $$hr == 12 && "\U$ampm" eq "AM";
 		printf "matched at %d, rem = %s.\n", __LINE__, $$tr if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^noon(?:\s+|$ )##ix) {
+	} elsif ($$tr =~ s#^noon$break##ix) {
 		# noon
 		($$hr, $$mr, $$sr) = (12, 0, 0);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^midnight(?:\s+|$ )##ix) {
+	} elsif ($$tr =~ s#^midnight$break##ix) {
 		# midnight
 		($$hr, $$mr, $$sr) = (0, 0, 0);
 		printf "matched at %d.\n", __LINE__ if $debug;
@@ -780,11 +755,7 @@ sub parse_time_offset
 				\s+
 				ago				(?# 7)
 			)?
-			(?:
-				\s+
-				|
-				$
-			)
+			$break
 			}{}) {
 		# count units
 		$$rsr = 0 unless defined $$rsr;
@@ -943,11 +914,11 @@ sub parse_year_only
 
 	$$tr =~ s#^\s+##;
 
-	if ($$tr =~ s#^(\d\d\d\d)(?:\s+|$)##) {
+	if ($$tr =~ s#^(\d\d\d\d)$break##) {
 		$$yr = $1;
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#\'(\d\d)(?:\s+|$ )##) {
+	} elsif ($$tr =~ s#\'(\d\d)$break##) {
 		$$yr = expand_two_digit_year($1, $now, %options);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
@@ -982,11 +953,7 @@ sub parse_date_offset
 				\s+
 				ago
 			)?
-			(?:
-				\s+
-				|
-				$
-			)
+			$break
 			##) {
 		my $amt = $1 + 0;
 		my $units = $2;
@@ -1008,11 +975,7 @@ sub parse_date_offset
 			(\d+)
 			\s*
 			(day|week|month|year)s?
-			(?:
-				\s+
-				|
-				$
-			)
+			$break
 			##) {
 		my $one = $1 || '';
 		my $two = $2 || '';
@@ -1028,7 +991,7 @@ sub parse_date_offset
 			after
 			\s+
 			next
-			(?: \s+ | $ )
+			$break
 			##) {
 		# Dow "after next"
 		$$rdr = $wdays{"\L$1"} - $wday + ( $wdays{"\L$1"} > $wday ? 7 : 14);
@@ -1041,7 +1004,7 @@ sub parse_date_offset
 			before
 			\s+
 			last
-			(?: \s+ | $ )
+			$break
 			##) {
 		# Dow "before last"
 		$$rdr = $wdays{"\L$1"} - $wday - ( $wdays{"\L$1"} < $wday ? 7 : 14);
@@ -1051,7 +1014,7 @@ sub parse_date_offset
 			next\s+
 			(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday
 				|Wednesday|Thursday|Friday|Saturday|Sunday)
-			(?:\s+|$ )
+			$break
 			##) {
 		# "next" Dow
 		$$rdr = $wdays{"\L$1"} - $wday 
@@ -1062,7 +1025,7 @@ sub parse_date_offset
 			last\s+
 			(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday
 				|Wednesday|Thursday|Friday|Saturday|Sunday)
-			(?:\s+|$ )##) {
+			$break##) {
 		# "last" Dow
 		printf "c %d - %d + ( %d < %d ? 0 : -7 \n", $wdays{"\L$1"},  $wday,  $wdays{"\L$1"}, $wday if $debug;
 		$$rdr = $wdays{"\L$1"} - $wday + ( $wdays{"\L$1"} < $wday ? 0 : -7);
@@ -1071,7 +1034,7 @@ sub parse_date_offset
 	} elsif ($options{PREFER_PAST} and $$tr =~ s#^(?xi)
 			(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday
 				|Wednesday|Thursday|Friday|Saturday|Sunday)
-			(?:\s+|$ )##) {
+			$break##) {
 		# Dow
 		printf "c %d - %d + ( %d < %d ? 0 : -7 \n", $wdays{"\L$1"},  $wday,  $wdays{"\L$1"}, $wday if $debug;
 		$$rdr = $wdays{"\L$1"} - $wday + ( $wdays{"\L$1"} < $wday ? 0 : -7);
@@ -1080,35 +1043,35 @@ sub parse_date_offset
 	} elsif ($options{PREFER_FUTURE} and $$tr =~ s#^(?xi)
 			(Mon|Tue|Wed|Thu|Fri|Sat|Sun|Monday|Tuesday
 				|Wednesday|Thursday|Friday|Saturday|Sunday)
-			(?:\s+|$ )
+			$break
 			##) {
 		# Dow
 		$$rdr = $wdays{"\L$1"} - $wday 
 				+ ( $wdays{"\L$1"} > $wday ? 0 : 7);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^today(?:\s+|$ )##xi) {
+	} elsif ($$tr =~ s#^today$break##xi) {
 		# today
 		$$rdr = 0;
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^tomorrow(?:\s+|$ )##xi) {
+	} elsif ($$tr =~ s#^tomorrow$break##xi) {
 		$$rdr = 1;
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^yesterday(?:\s+|$ )##xi) {
+	} elsif ($$tr =~ s#^yesterday$break##xi) {
 		$$rdr = -1;
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^last\s+(week|month|year)(?:\s+|$ )##xi) {
+	} elsif ($$tr =~ s#^last\s+(week|month|year)$break##xi) {
 		&calc($rsr, $yr, $mr, $dr, $rdr, $now, $1, -1, %options);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^next\s+(week|month|year)(?:\s+|$ )##xi) {
+	} elsif ($$tr =~ s#^next\s+(week|month|year)$break##xi) {
 		&calc($rsr, $yr, $mr, $dr, $rdr, $now, $1, 1, %options);
 		printf "matched at %d.\n", __LINE__ if $debug;
 		return 1;
-	} elsif ($$tr =~ s#^now (?: \s+ | $ )##x) {
+	} elsif ($$tr =~ s#^now $break##x) {
 		$$rdr = 0;
 		return 1;
 	}
