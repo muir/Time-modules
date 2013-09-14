@@ -3,6 +3,10 @@
 
 	Added "Sept" as an abbr for September.
 	Fixing: https://rt.cpan.org/Ticket/Display.html?id=87451
+
+	Parse subsecond strings longer than six digits.
+	Can only return about four digits though.
+	https://rt.cpan.org/Ticket/Display.html?id=79740
 2013.0912:
         Pulled fix from Adam Schobelock that removes timezone offset
 	caching because it was creating incorrect behavor or Moscow.

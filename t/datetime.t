@@ -321,6 +321,8 @@ BEGIN {
 		1012550400, ['2/1/02', NOW => 1011252345, FUZZY => 1, PREFER_FUTURE => 1],
 		1011247200, ['6am', GMT => 1, NOW => 1011252345],
 		1256435700, ['2009-10-25 02:55:00', ZONE => 'MEZ'],
+		1348073459, ['2012-09-19 09:50:59'],
+		1348073459.344702843, ['2012-09-19 09:50:59.344702843', SUBSECOND => 1],
 		);
 
 	%tztests = (
@@ -460,7 +462,7 @@ while (@sdt) {
 	}
 	if (! defined($es) && ! defined($s)) {
 		print "ok $c # $toparse\n";
-	} elsif (defined($es) && defined($s) && $es == $s) {
+	} elsif (defined($es) && defined($s) && ($es == $s || "$es" eq "$s")) {
 		print "ok $c # $toparse\n";
 	} else {
 		print "not ok $c # $toparse\n";

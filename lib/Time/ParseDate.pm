@@ -676,7 +676,7 @@ sub parse_time_only
 								(
 									(?# don't barf on database sub-second timings)
 									[:.,]
-									\d{1,6}
+									\d+
 								)?	(?# $8)
 						)?
 					)
