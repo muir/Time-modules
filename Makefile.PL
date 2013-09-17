@@ -3,7 +3,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile( 
 	VERSION_FROM =>	'lib/Time/ParseDate.pm',
-	NAME =>		'Time-modules',
+	NAME =>		'Time::ParseDate',
 	($] >= 5.005 
 		?	
 			(
