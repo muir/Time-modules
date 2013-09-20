@@ -11,7 +11,7 @@ END { ok($finished, 'finished') if defined $finished }
 
 $ENV{'LANG'} = 'C';
 $ENV{'TZ'} = 'PST8PDT'; 
-tzset;
+eval { tzset };                 # Might not be implemented everywhere
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
@@ -19,10 +19,10 @@ my $hd = $y[2] - $x[2];
 $hd += 24 if $hd < 0;
 $hd %= 24;
 if ($hd != 8) {
-	import Test::More skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.  Please set the TZ environment variable to PST8PDT and rerun.";
+	plan skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.  Please set the TZ environment variable to PST8PDT and rerun.";
 	exit 0;
 }
-import Test::More qw(no_plan);
+plan qw(no_plan);
 
 $finished = 0;
 

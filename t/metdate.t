@@ -12,7 +12,8 @@ END { ok($finished, 'finished') if defined $finished }
 
 $ENV{'LANG'} = 'C';
 $ENV{'TZ'} = 'PST8PDT'; 
-tzset;
+eval { tzset; 1 }
+    or plan skip_all => "It seems POSIX::tzset is not available.";
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
@@ -20,10 +21,9 @@ my $hd = $y[2] - $x[2];
 $hd += 24 if $hd < 0;
 $hd %= 24;
 if ($hd != 8) {
-	import Test::More skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.";
+	plan skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.";
 	exit 0;
 }
-import Test::More qw(no_plan);
 
 $ENV{'TZ'} = 'MET'; 
 tzset;
@@ -34,10 +34,11 @@ $hd = $y[2] - $x[2];
 $hd += 24 if $hd < 0;
 $hd %= 24;
 if ($hd != 23) {
-	print "1..0 # Skipped: It seems localtime() does not honor \$ENV{TZ} when set in the test script.\n";
+	plan skip_all => "It seems localtime() does not honor \$ENV{TZ} when set in the test script.";
 	exit 0;
 }
 
+plan 'no_plan';
 $finished = 0;
 
 $ENV{TZ} = 'MET';
