@@ -180,7 +180,7 @@ Time::CTime -- format times ala POSIX asctime
 
 This module provides routines to format dates.  They correspond 
 to the libc routines.  &strftime() supports a pretty good set of
-coversions -- more than most C libraries.
+conversions -- more than most C libraries.
  
 strftime supports a pretty good set of conversions.  
 

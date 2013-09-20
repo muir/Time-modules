@@ -1,4 +1,3 @@
-
 package Time::ParseDate;
 
 require 5.000;
@@ -479,7 +478,7 @@ sub parse_date_only
 		return 1;
 	} elsif ($$tr =~ s#^(\d\d?)([-./])(\d\d?)\2(\d\d\d\d?)($break)##) {
 		# mm/dd/yyyy - is this safe?  No.
-		# -- or dd/mm/yyyy! If $1>12, then it's umabiguous.
+		# -- or dd/mm/yyyy! If $1>12, then it's unambiguous.
 		# Otherwise check option UK for UK style date.
 		if ($uk || $1>12) {
 		  ($$yr, $$mr, $$dr) = ($4, $3, $1);
@@ -698,7 +697,7 @@ sub parse_time_only
 			)?
 			$break
 			!!) { #"emacs
-		# HH[[:]MM[:SS]]meridan [zone] 
+		# HH[[:]MM[:SS]]meridian [zone] 
 		my $ampm;
 		$$hr = $1 || $5 || $10 || 0; # 10 is undef, but 5 is defined..
 		$$mr = $2 || $6 || 0;
@@ -936,7 +935,7 @@ sub parse_date_offset
 	# yr - year return
 	# mr - month return
 	# dr - day return
-	# rdr - relatvie day return
+	# rdr - relative day return
 	# rsr - relative second return
 
 	my $j;
@@ -1226,8 +1225,8 @@ If a timezone is specified it must be after the time.  Year specifications
 can be tacked onto the end of absolute times.
 
 If C<parsedate()> is called from array context, then it will return two
-elements.  On sucessful parses, it will return the seconds and what 
-remains of its input string.  On unsucessful parses, it will return
+elements.  On successful parses, it will return the seconds and what 
+remains of its input string.  On unsuccessful parses, it will return
 C<undef> and an error string.
 
 =head1 EXAMPLES
