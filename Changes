@@ -1,5 +1,6 @@
 Revision history for Perl module Time::ParseDate
 
+	- Type-o fixes
 2013.0917 2013-09-17
 	- Replaced CHANGELOG with Changes file.
 2013.0916 2013-09-16
