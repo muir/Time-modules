@@ -1,5 +1,7 @@
 Revision history for Perl module Time::ParseDate
 
+2013.0920 2013-09-20
+	- Skip tests when tzset isn't available
 	- Type-o fixes
 2013.0917 2013-09-17
 	- Replaced CHANGELOG with Changes file.
