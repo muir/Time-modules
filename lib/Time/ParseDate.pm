@@ -526,6 +526,7 @@ sub parse_date_only
 			((\s)+ | - | \. | /)
 				
 			(\d\d?)
+			,?
 			(?:
 				(?: \2|\3+)
 				(\d\d (?: \d\d)?)
@@ -533,6 +534,7 @@ sub parse_date_only
 			$break
 			##) {
 		# [Dow,] Mon dd [yyyy]
+		# [Dow,] Mon d, [yy]
 		($$yr, $$mr, $$dr) = ($5, $mtable{"\u\L$1"}, $4);
 		printf "%d: %s - %s - %s\n", __LINE__, $1, $2, $4 if $debug;
 		print "y undef\n" if ($debug && ! defined($$yr));
@@ -556,6 +558,8 @@ sub parse_date_only
 			##) {
 		# Month day{st,nd,rd,th}, 'yy
 		# Month day{st,nd,rd,th}, year
+		# Month day, year
+		# Mon. day, year
 		($$yr, $$mr, $$dr) = ($3 || $4, $mtable{"\u\L$1"}, $2);
 		printf "%d: %s - %s - %s - %s\n", __LINE__, $1, $2, $3, $4 if $debug;
 		print "y undef\n" if ($debug && ! defined($$yr));
