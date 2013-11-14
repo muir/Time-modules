@@ -1,5 +1,8 @@
 Revision history for Perl module Time::ParseDate
 
+2013.1113 2013-11-13
+	- fix bug https://rt.cpan.org/Ticket/Display.html?id=90343
+	  "Month day, year" wasn't parsing correctly.
 2013.0920 2013-09-20
 	- Skip tests when tzset isn't available
 	- Type-o fixes
