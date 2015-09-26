@@ -5,15 +5,14 @@ use warnings;
 use Test::More; 
 use Time::ParseDate;
 use Time::CTime;
-use POSIX qw(tzset);
+#-use POSIX qw(tzset);
+use Time::Piece;
 
 my $finished;
 END { ok($finished, 'finished') if defined $finished }
 
 $ENV{'LANG'} = 'C';
 $ENV{'TZ'} = 'PST8PDT'; 
-eval { tzset; 1 }
-    or plan skip_all => "It seems POSIX::tzset is not available.";
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
@@ -25,8 +24,7 @@ if ($hd != 8) {
 	exit 0;
 }
 
-$ENV{'TZ'} = 'MET'; 
-tzset;
+$ENV{'TZ'} = 'MET';
 
 @x = localtime(785307957);
 @y = gmtime(785307957);
@@ -42,7 +40,6 @@ plan 'no_plan';
 $finished = 0;
 
 $ENV{TZ} = 'MET';
-tzset;
 
 my $t0 = parsedate("2009-10-25 02:55:00");
 my $t1 = parsedate("+ 1 hour", NOW => scalar(parsedate("2009-10-25 02:55:00")));
@@ -53,7 +50,6 @@ is($t1, 1256439300, "testing TZ=MET seconds +1 h");
 is($lt1, "Sun Oct 25 03:55:00 2009", "testing TZ=MET +1 h localtime");
 
 $ENV{TZ} = "PST8PDT";
-tzset;
 
 my $p0 = parsedate("2009-11-01 01:55:00");
 my $p1 = parsedate("+ 1 hour", NOW => scalar(parsedate("2009-11-01 01:55:00")));
