@@ -14,7 +14,7 @@ use strict;
 
 use vars qw($VERSION);
 
-$VERSION = 2006.0814;
+$VERSION = 2015.0925;
 
 sub tz2zone
 {
@@ -31,7 +31,7 @@ sub tz2zone
 
 	if (! defined $isdst) {
 		my $j;
-		$time = time() unless $time;
+		$time = time() unless defined $time;
 		($j, $j, $j, $j, $j, $j, $j, $j, $isdst) = localtime($time);
 	}
 
@@ -60,7 +60,7 @@ sub tz_local_offset
 {
 	my ($time) = @_;
 
-	$time = time() unless $time;
+	$time = time() unless defined $time;
 
     return &calc_off($time);
 }
@@ -248,7 +248,7 @@ sub tz_offset
 
 	return &tz_local_offset() unless($zone);
 
-	$time = time() unless $time;
+	$time = time() unless defined $time;
 	my(@l) = localtime($time);
 	my $dst = $l[8];
 
@@ -270,7 +270,7 @@ sub tz_name
 {
 	my ($off, $time) = @_;
 
-	$time = time() unless $time;
+	$time = time() unless defined $time;
 	my(@l) = localtime($time);
 	my $dst = $l[8];
 
