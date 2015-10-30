@@ -17,5 +17,8 @@ WriteMakefile(
 			) 
 		: ()
 	),
+	BUILD_REQUIRES => {
+		'Time::Piece'	=> 0,
+	},
 	dist => { 	COMPRESS=>"gzip", SUFFIX=>"gz" },
 );

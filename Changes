@@ -1,5 +1,7 @@
 Revision history for Perl module Time::ParseDate
 
+2015.1030 2015-10-30
+        - Not requirement for Time::Piece for tests.
 2015.0925 2015-09-25
         - https://rt.cpan.org/Ticket/Display.html?id=96453
           fix epoch second 0 with timezone. 
