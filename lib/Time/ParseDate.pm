@@ -16,7 +16,7 @@ use strict;
 # constants
 use vars qw(%mtable %umult %wdays $VERSION);
 
-$VERSION = 2013.1113;
+$VERSION = 2015.0925;
 
 # globals
 use vars qw($debug); 
@@ -1131,8 +1131,8 @@ Date parsing can also use options.  The options are as follows:
 	TIME_REQUIRED -> do not default the time
 	NO_RELATIVE -> input time is not relative to NOW
 	TIMEFIRST -> try parsing time before date [not default]
-	PREFER_PAST -> when year or day of week is ambigueous, assume past
-	PREFER_FUTURE -> when year or day of week is ambigueous, assume future
+	PREFER_PAST -> when year or day of week is ambiguous, assume past
+	PREFER_FUTURE -> when year or day of week is ambiguous, assume future
 	SUBSECOND -> parse fraction seconds
 	VALIDATE -> only accept normal values for HHMMSS, YYMMDD.  Otherwise
 		days like -1 might give the last day of the previous month.

@@ -1,5 +1,14 @@
 Revision history for Perl module Time::ParseDate
 
+2015.0925 2015-09-25
+        - https://rt.cpan.org/Ticket/Display.html?id=96453
+          fix epoch second 0 with timezone. 
+2015.0925 2015-09-25
+        - apply patch from bug https://rt.cpan.org/Ticket/Display.html?id=90367
+          use Time::Piece in place of POSIX tzset for better compatibility with Windows. 
+2015.0925 2015-09-25
+        - apply patch from bug https://rt.cpan.org/Ticket/Display.html?id=96031
+          manpage typo patch 
 2013.1113 2013-11-13
 	- fix bug https://rt.cpan.org/Ticket/Display.html?id=90343
 	  "Month day, year" wasn't parsing correctly.

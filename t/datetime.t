@@ -343,9 +343,14 @@ use Time::JulianDay;
 use Time::ParseDate;
 use Time::Local;
 use Time::Timezone;
-use POSIX qw(tzset);
+#use POSIX qw(tzset);
 
-eval { tzset };                 # Might not be implemented everywhere
+#-use POSIX qw(tzset);
+# - -eval { tzset }; # Might not be implemented everywhere +use Time::Piece;
+
+#eval { tzset };                 # Might not be implemented everywhere
+
+use Time::Piece;
 
 my @x = localtime(785307957);
 my @y = gmtime(785307957);
