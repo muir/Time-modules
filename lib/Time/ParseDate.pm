@@ -656,7 +656,7 @@ sub parse_time_only
 
 	$$tr =~ s#^\s+##;
 
-	if ($$tr =~ s!^(?x)
+	if ($$tr =~ s/^(?x)
 			(?:
 				(?:
 					([012]\d)		(?# $1)
@@ -666,8 +666,7 @@ sub parse_time_only
 						    ([0-5]\d)	(?# $3)
 						)?
 					)
-					\s*
-					([apAP][mM])?  		(?# $4)
+					(?:\s*([apAP][mM]))?  		(?# $4)
 				) | (?:
 					(\d{1,2}) 		(?# $5)
 					(?:
@@ -683,24 +682,27 @@ sub parse_time_only
 								)?	(?# $8)
 						)?
 					)
-					\s*
-					([apAP][mM])?		(?# $9)
+					(?:\s*([apAP][mM]))?  		(?# $9)
 				) | (?:
 					(\d{1,2})		(?# $10)
 					([apAP][mM])		(?# ${11})
 				)
 			)
 			(?:
-				\s+
-				"?
-				(				(?# ${12})
-					(?: [A-Z]{1,4}[TCW56] )
-					|
-					IDLE
-				)	
+                                (?:
+                                    \s+
+                                    "?
+                                    (				(?# ${12})
+                                        (?: [A-Z]{1,4}[TCW56](?!(?:\+\d+|\s+DST)) )
+                                        |
+                                        IDLE
+                                    )
+                                )
+                                |
+                                ([Zz])                             (?# ${13})
 			)?
 			$break
-			!!) { #"emacs
+			//) { #"emacs
 		# HH[[:]MM[:SS]]meridian [zone] 
 		my $ampm;
 		$$hr = $1 || $5 || $10 || 0; # 10 is undef, but 5 is defined..
@@ -713,7 +715,9 @@ sub parse_time_only
 		}
 		print "S = $$sr\n" if $debug;
 		$ampm = $4 || $9 || $11 || '';
+                printf "ampm at %d: %s %s %s\n", __LINE__, $4||'(no)', $9||'(no)', $11||'(no)' if $debug;
 		$$tzr = $12;
+                $$tzr = 'UTC' if defined $13;
 		$$hr += 12 if $ampm and "\U$ampm" eq "PM" && $$hr != 12;
 		$$hr = 0 if $$hr == 12 && "\U$ampm" eq "AM";
 		printf "matched at %d, rem = %s.\n", __LINE__, $$tr if $debug;
